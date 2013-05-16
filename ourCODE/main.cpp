@@ -4,15 +4,15 @@
 
 using namespace std;
 
-// Линейный конгруэнтный генератор
+// Р›РёРЅРµР№РЅС‹Р№ РєРѕРЅРіСЂСѓСЌРЅС‚РЅС‹Р№ РіРµРЅРµСЂР°С‚РѕСЂ
 int x;
 
-int a=845,c=2625,m=8192; // из презентации
+int a=845,c=2625,m=8192; // РёР· РїСЂРµР·РµРЅС‚Р°С†РёРё Р·РЅР°С‡РµРЅРёСЏ
 // int a=845,c=2625,m=1024;
 
 int GET_rund ()
 {
-	x=(a*x+c)%m;  // даст число от 0 до m=8192
+	x=(a*x+c)%m;  // РґР°СЃС‚ С‡РёСЃР»Рѕ РѕС‚ 0 РґРѕ m=8192
 	return x;
 }
 
@@ -23,63 +23,46 @@ void SET_x0_rund (int x0)
 
 double rundforBoxMuller()
 {
-	// выдает равномерно распределенную случайную величину на отрезке [-1,1]
+	// РІС‹РґР°РµС‚ СЂР°РІРЅРѕРјРµСЂРЅРѕ СЂР°СЃРїСЂРµРґРµР»РµРЅРЅСѓСЋ СЃР»СѓС‡Р°Р№РЅСѓСЋ РІРµР»РёС‡РёРЅСѓ РЅР° РѕС‚СЂРµР·РєРµ [-1,1]
 	  double t= ((double)(GET_rund()-m/2))/(m/2);
 
 	  return t;
 }
-// _______________________________Линейный конгруэнтный генератор
+// _______________________________Р›РёРЅРµР№РЅС‹Р№ РєРѕРЅРіСЂСѓСЌРЅС‚РЅС‹Р№ РіРµРЅРµСЂР°С‚РѕСЂ
 
 
 
 int main(int argc, char* argv[])
 {
-	// ПОКА НЕ РАБОТАЕТ
-	///////////////////*if(argc != 4)
-	//////////////////{
-	//////////////////	printf("wrong input format (program inputfile outputfile timefile)");
-	//////////////////	getchar();
-	//////////////////	return -1;
-	//////////////////}*/
 	
-
-
-
-
-
+	/*if(argc != 4)
+	{
+		printf("wrong input format (program inputfile outputfile timefile)");
+		getchar();
+		return -1;
+	}*/
 	
-	// чтение из файла
+	// С‡С‚РµРЅРёРµ РёР· С„Р°Р№Р»Р°
 
 	int count;
-	double mu, sigquad; //количество чисел, мю, сигма в квадрате
+	double mu, sigquad; //РєРѕР»РёС‡РµСЃС‚РІРѕ С‡РёСЃРµР», РјСЋ, СЃРёРіРјР° РІ РєРІР°РґСЂР°С‚Рµ
 	
-
-	// ПОКА НЕ РАБОТАЕТ
-	///////////////////*ifstream f;
-	//////////////////f.open(argv[1]);
-	//////////////////f >> count >> mu >> sigquad;
-	//////////////////f.close();*/
+	ifstream F;
+	F.open("n2500.txt",ios::in);
+	F>>count>>mu>>sigquad;
+	F.close();
 	
+	// ________________С‡С‚РµРЅРёРµ РёР· С„Р°Р№Р»Р°
 
-	count = 1000;
-	mu =1 ;
-	sigquad = 1;
-	
-	
-	// ________________чтение из файла
-
-
-// начинаем считать время
-	// ПОКА НЕ РАБОТАЕТ
 
 	Timer timer;
 	timer.reset();
     timer.start();
 
-// используем  Преобразование Бокса — Мюллера
+// РёСЃРїРѕР»СЊР·СѓРµРј  РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ Р‘РѕРєСЃР° вЂ” РњСЋР»Р»РµСЂР°
 
 
-	double *values = new double[count+1];// создали массив
+	double *sequence = new double[count+1];// СЃРѕР·РґР°Р»Рё РјР°СЃСЃРёРІ
 
 	double x,y,s,BM;
 
@@ -98,59 +81,73 @@ int main(int argc, char* argv[])
 		
 		BM= sqrt(-2.0 * log(s) / s);
 
-		values[i]=x*BM*sqrt(sigquad)+mu;
-		values[i+1]=y*BM*sqrt(sigquad)+mu;
+		sequence[i]=x*BM*sqrt(sigquad)+mu;
+		sequence[i+1]=y*BM*sqrt(sigquad)+mu;
 
 		i+=2;
 	}
 
+	timer.stop();
 	double time_result = timer.getElapsed();
-// посчитали время работы
+
+// РїРѕСЃС‡РёС‚Р°Р»Рё РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹
+
+
+	// С‚РµРїРµСЂСЊ РєСЂРёС‚РµСЂРёРё
+// РїРёСЂСЃРѕРЅ
+
+	int a=(int)(mu-3*sqrt(sigquad));
+	int b=(int)(mu+3*sqrt(sigquad));
+	int N = 11;
+	int* frequency = new int[N];
+	for(int i = 0; i < N; i++) frequency[i] = 0;
+
+	double interval = (b - a) / (double)N;
+
+	for(int i = 0; i < N; i++)
+	{
+		int tmp = (sequence[i] - a) / interval;
+		if(tmp == N) tmp--;
+		frequency[tmp]++;
+	}
+
+	double xi = 0;
+	double f = (double)b / (double)N;
+
+	for(int i = 0; i < N; i++)
+	{
+		double tmp = ((double)frequency[i] - f);
+		xi += tmp * tmp;
+	}
+
+	xi /= f;
+	// РїРёСЂСЃРѕРЅР° РїРѕСЃС‡РёС‚Р°Р»Рё
 
 
 
+// РєРѕР»РјР°РіРѕСЂРѕРІ
+	
+
+
+
+	double colmagorov=0;
+	//РєРѕР»РјР°РіРѕСЂРѕРІР° РїРѕСЃС‡РёС‚Р°Р»Рё 
 
 	
-	
 
-	// два критерия посчитаем...
+	/// Р·Р°РїРёС€РµРј С„Р°Р№Р»РёРєРё Рё РІСЃРµ
 
+	ofstream T;
+	T.open(argv[2]);
+	T << xi << endl << colmagorov << endl;
+	for(int i = 0; i < N; i++) T << sequence[i] << endl;
+	T.close();
 
+	ofstream O;	
+	O.open(argv[3]);
+	O << time_result;
+	O.close();
 
-	int iMin=(int)(mu-3*sqrt(sigquad));
-	int iMax=(int)(mu+3*sqrt(sigquad));
-	int int_count = 11;
-	//calculation of the statistical characteristics(xi_quadro)
-	double int_length = (iMax - iMin) / (double)int_count;
-	int* emp_frequency = new int[int_count];
-	for(int i = 0; i < int_count; i++)
-		emp_frequency[i] = 0;
-	for(int i = 0; i < iMax; i++)
-	{
-		int int_index = (values[i] - iMin) / int_length;
-		if(int_index == int_count) int_index--;
-		emp_frequency[int_index]++;
-	}
-	double xi_quadro = 0;
-	double N_p = (double)iMax / (double)int_count;
-	for(int i = 0; i < int_count; i++)
-	{
-		double tmp = ((double)emp_frequency[i] - N_p);
-		xi_quadro += tmp * tmp;
-	}
-	xi_quadro /= N_p;
-	// первый посчитали
-
-
-
-
-
-	// файлики запишем...
-
-
-
-
-
-	delete[] values;
+	delete[] sequence;
 	return 0;
 }
