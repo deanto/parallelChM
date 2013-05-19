@@ -348,6 +348,8 @@ int main(int argc, char* argv[])
 	sum=1;
 	cur=sequence[0];
 
+	int n=0;
+
 	double max=0;// сюда будем записывать максимальное расхождение теоретической функции распределения от нашей
 	
 	for (int i=1;i<count;i++)
@@ -359,10 +361,15 @@ int main(int argc, char* argv[])
 		} else
 		{
 			cur=sequence[i];
+			n++;
 			// значит переходим на следующую ступеньку
 			// sum означает сколько было значений до этого текущего, sum/count - вероятность встретить значения меньше чем текущее
 	
-			double tmp = abs( NormRaspr(cur,mu,sigquad) - (double)sum/(double)count );
+
+			double abs = NormRaspr(cur,mu,sigquad) - (double)sum/(double)count;
+			if (abs<0) abs*=(-1);
+				
+			double tmp = abs;
 			if (tmp>max) max=tmp;
 
 			sum++;
@@ -370,7 +377,7 @@ int main(int argc, char* argv[])
 	}
 
 
-	double colmagorov=max*sqrt((double)count);
+	double colmagorov=max*sqrt((double)n);
 
 	//колмагорова посчитали 
 
@@ -391,6 +398,15 @@ int main(int argc, char* argv[])
 
 	delete[] sequence;
 	delete[] savedseq;
+
+
+	delete [] frequency;
+	delete [] frequencyP;
+
+	delete[] NormalFrequencyP;
+
+
+	
 	return 0;
 }
 
